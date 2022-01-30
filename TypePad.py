@@ -35,9 +35,10 @@ class TypePad(tk.Canvas):
 
     def mouseRelease(self, event):
         img = self.transformedImgArray()
-        letter, conf = self.parent.predict(img)
+        self.parent.sendGesture(img)
         plt.imshow(img)
         plt.show()
+        self.reset()
 
     def reset(self):
         self.imgArray = np.zeros(self.size)
@@ -61,7 +62,8 @@ class TypePad(tk.Canvas):
                         yi_bounds[1] = yi
 
         ROI = self.imgArray[yi_bounds[0]:yi_bounds[1], xi_bounds[0]:xi_bounds[1]]
-        pad_size = (int(ROI.shape[0]*0.1), int(ROI.shape[1]*0.1))
-        newImg = np.pad(ROI, (pad_size[0], pad_size[1]))
+        pad_size = (max(ROI.shape[0], ROI.shape[1])-min(ROI.shape[0], ROI.shape[1]))
+        newImg = np.pad(ROI, (0, pad_size)) if ROI.shape[0] > ROI.shape[1] else np.pad(ROI, (pad_size, 0))
+
         return gaussian(newImg, sigma=2)
 
